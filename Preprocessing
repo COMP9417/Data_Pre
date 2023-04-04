@@ -1,0 +1,313 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+import pandas as pd
+
+
+# In[2]:
+
+
+train = pd.read_csv('C:\\Users\\Neo Zhan\\Desktop\\ashrae-energy-prediction\\train.csv')
+building_metadata = pd.read_csv('C:\\Users\\Neo Zhan\\Desktop\\ashrae-energy-prediction\\building_metadata.csv')
+
+
+# In[3]:
+
+
+train
+
+
+# In[4]:
+
+
+building_metadata
+
+
+# In[5]:
+
+
+weather_train = pd.read_csv('C:\\Users\\Neo Zhan\\Desktop\\ashrae-energy-prediction\\weather_train.csv')
+
+
+# In[6]:
+
+
+null_values_train = train.isnull().sum()
+
+
+# In[7]:
+
+
+null_values_train
+
+
+# In[8]:
+
+
+null_percentages_train = train.isnull().mean() * 100
+
+
+# In[9]:
+
+
+null_percentages_train
+
+
+# In[10]:
+
+
+null_values_building_metadata = building_metadata.isnull().sum()
+
+
+# In[11]:
+
+
+null_percentages_building_metadata = building_metadata.isnull().mean() * 100
+
+
+# In[12]:
+
+
+null_percentages_building_metadata
+
+
+# In[13]:
+
+
+null_percentages_weather_train = weather_train.isnull().mean() * 100
+
+
+# In[14]:
+
+
+null_percentages_weather_train
+
+
+# In[15]:
+
+
+weather_train
+
+
+# In[16]:
+
+
+merged_df = pd.merge(weather_train, building_metadata, on='site_id', how='inner')
+
+
+# In[17]:
+
+
+merged_df
+
+
+# In[18]:
+
+
+Final_merged_df = pd.merge(merged_df, train, on=['building_id', 'timestamp'], how='inner')
+
+
+# In[19]:
+
+
+Final_merged_df
+
+
+# In[20]:
+
+
+# Final_merged_df.to_csv('C:\\Users\\Neo Zhan\\Desktop\\ashrae-energy-prediction\\merged_file.csv', index=False)
+
+
+# In[21]:
+
+
+null_values = Final_merged_df.isnull().sum()
+
+
+# In[22]:
+
+
+null_values
+
+
+# In[23]:
+
+
+null_percentages = Final_merged_df.isnull().mean() * 100
+
+
+# In[24]:
+
+
+null_percentages
+
+
+# In[25]:
+
+
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
+
+
+# In[26]:
+
+
+Final_merged_df.dtypes
+
+
+# In[27]:
+
+
+Final_merged_df['timestamp'] = pd.to_datetime(Final_merged_df['timestamp'])
+
+
+# In[28]:
+
+
+Final_merged_df.dtypes
+
+
+# In[29]:
+
+
+from sklearn.preprocessing import LabelEncoder
+encoder = LabelEncoder()
+
+
+# In[30]:
+
+
+encoder.fit(Final_merged_df['primary_use'])
+
+
+# In[31]:
+
+
+encoded_col = encoder.transform(Final_merged_df['primary_use'])
+
+
+# In[32]:
+
+
+Final_merged_df['primary_use'] = encoded_col
+
+
+# In[33]:
+
+
+imp = IterativeImputer(max_iter=10, random_state=0)
+
+
+# In[34]:
+
+
+Final_merged_df['timestamp']
+
+
+# In[35]:
+
+
+import numpy as np
+epoch = np.datetime64('1970-01-01T00:00:00')
+
+
+# In[36]:
+
+
+float_array = (Final_merged_df['timestamp'] - epoch) / np.timedelta64(1, 's')
+
+
+# In[37]:
+
+
+Final_merged_df['timestamp']=float_array
+
+
+# In[38]:
+
+
+Final_merged_df.dtypes
+
+
+# In[39]:
+
+
+null_values = Final_merged_df.isnull().sum()
+
+
+# In[40]:
+
+
+null_values
+
+
+# In[41]:
+
+
+null_percentages = Final_merged_df.isnull().mean() * 100
+null_percentages
+
+
+# In[66]:
+
+
+# Select the rows with non-null values in the columns of interest
+# Final_merged_df2 = Final_merged_df.loc[Final_merged_df['floor_count'].notnull() & Final_merged_df['year_built'].notnull() & Final_merged_df['cloud_coverage'].notnull() & Final_merged_df['precip_depth_1_hr'].notnull()]
+
+
+# In[67]:
+
+
+# Final_merged_df2
+
+
+# In[68]:
+
+
+# null_percentages = Final_merged_df2.isnull().mean() * 100
+# null_percentages
+
+
+# In[77]:
+
+
+Final_merged_df_sample = Final_merged_df.sample(frac=0.01)
+
+
+# In[78]:
+
+
+Final_merged_df_sample
+
+
+# In[79]:
+
+
+null_percentages = Final_merged_df_sample.isnull().mean() * 100
+null_percentages
+
+
+# In[80]:
+
+
+# Initialize the imputer MICE
+imputer = IterativeImputer()
+
+# Impute the missing values
+Final_merged_df_sample_imputed = pd.DataFrame(imputer.fit_transform(Final_merged_df_sample))
+
+
+# In[81]:
+
+
+Final_merged_df_sample_imputed
+
+
+# In[ ]:
+
+
+
