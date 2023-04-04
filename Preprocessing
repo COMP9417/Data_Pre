@@ -252,26 +252,6 @@ null_percentages = Final_merged_df.isnull().mean() * 100
 null_percentages
 
 
-# In[66]:
-
-
-# Select the rows with non-null values in the columns of interest
-# Final_merged_df2 = Final_merged_df.loc[Final_merged_df['floor_count'].notnull() & Final_merged_df['year_built'].notnull() & Final_merged_df['cloud_coverage'].notnull() & Final_merged_df['precip_depth_1_hr'].notnull()]
-
-
-# In[67]:
-
-
-# Final_merged_df2
-
-
-# In[68]:
-
-
-# null_percentages = Final_merged_df2.isnull().mean() * 100
-# null_percentages
-
-
 # In[77]:
 
 
